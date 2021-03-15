@@ -1,0 +1,48 @@
+{
+    "jobType": "MODEL_BATCH_TEST_JOB",
+    "jobStatus": "CREATED",
+    "jobResult": "UNKNOWN",
+    "inputData": [
+        {
+          "name": "test.csv",
+          "assetType": "EXTERNAL_FILE",
+          "fileUrl": "/hadoop/test.csv",
+          "filename": "test.csv",
+          "fileFormat": "CSV"
+        }
+      ],
+      "outputData": [
+        {
+          "name": "titanic_output.csv",
+          "assetType": "EXTERNAL_FILE",
+          "fileUrl": "/hadoop/titanic_output.csv",
+          "filename": "titanic_output.csv",
+          "fileFormat": "CSV"
+        }
+      ],
+    "model": {
+        "storedModel": {
+            "modelAssets": [
+                {
+                    "name": "UPDATE_ME",
+                    "assetType": "SOURCE_CODE",
+                    "primaryModelSource": true,
+                    "scoreFunction": "score",
+                    "metricsFunction": "metrics",
+                    "sourceCode": "UPDATE_ME"
+                }
+            ],
+            "modelMetaData": {
+                "type": "UNKNOWN"
+            }
+        }
+    },
+    "targetEngine": {
+        "engineType": "SPARK_RUNTIME",
+        "name": "spark-runtime-1",
+        "executorMemory": "512MB",
+        "sparkConf": {
+            "--master": "yarn"
+        }
+    }
+}
