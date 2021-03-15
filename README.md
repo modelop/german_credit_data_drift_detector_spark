@@ -1,7 +1,9 @@
 # Spark Drift Monitor Job
 
-TODO: upload to github https://github.com/modelop/german_credit_drift_detector_spark
-add sami as admin and core as readers
+TODO: 
+- explanation of repo
+- layout of files
+- how to run this example (section is below)
 
 ## MLC Trigger
 
