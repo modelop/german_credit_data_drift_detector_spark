@@ -109,14 +109,6 @@ execution.setVariable("MODEL_TEST_RESULT", new com.modelop.sdk.dataobjects.v2.Mo
           <bpmn:incoming>Flow_0moovvq</bpmn:incoming>
           <bpmn:errorEventDefinition id="ErrorEventDefinition_1l03k7p" errorRef="Error_11tzcxh" />
         </bpmn:endEvent>
-        <bpmn:scriptTask id="Activity_03lph20" name="Replace model id with original model" scriptFormat="groovy">
-          <bpmn:incoming>Flow_12na3bd</bpmn:incoming>
-          <bpmn:outgoing>Flow_0oli5b4</bpmn:outgoing>
-          <bpmn:script>def deployedModel = new com.modelop.sdk.dataobjects.v2.model.DeployedModel();
-deployedModel.setDeployableModel(ORIGINAL_MODEL);
-deployedModel.setEngine(JOB.engine);
-MODEL_TEST_RESULT.setDeployedModel(deployedModel);</bpmn:script>
-        </bpmn:scriptTask>
         <bpmn:sequenceFlow id="Flow_0moovvq" name="Job Error" sourceRef="Gateway_1ojtswm" targetRef="Event_1kdxt96">
           <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${JOB.jobStatus.toString() == "ERROR" || JOB.jobStatus.toString() == "CANCELLED"}</bpmn:conditionExpression>
         </bpmn:sequenceFlow>
@@ -127,13 +119,21 @@ MODEL_TEST_RESULT.setDeployedModel(deployedModel);</bpmn:script>
           <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${JOB.jobStatus.toString() == "COMPLETE"}</bpmn:conditionExpression>
         </bpmn:sequenceFlow>
         <bpmn:sequenceFlow id="Flow_1aizvvv" sourceRef="Event_00jn43t" targetRef="Activity_0k97z4v" />
-        <bpmn:sequenceFlow id="Flow_0oli5b4" sourceRef="Activity_03lph20" targetRef="Activity_1eqtzi7" />
         <bpmn:serviceTask id="Activity_0qmx7bm" name="Wait for Test&#10;to Complete" camunda:type="external" camunda:topic="jobs">
           <bpmn:incoming>Flow_0jo65g6</bpmn:incoming>
           <bpmn:outgoing>Flow_0q30rq0</bpmn:outgoing>
         </bpmn:serviceTask>
         <bpmn:sequenceFlow id="Flow_0jo65g6" sourceRef="Activity_15nvlpb" targetRef="Activity_0qmx7bm" />
         <bpmn:sequenceFlow id="Flow_0q30rq0" sourceRef="Activity_0qmx7bm" targetRef="Gateway_1ojtswm" />
+        <bpmn:scriptTask id="Activity_03lph20" name="Replace model id with original model" scriptFormat="groovy">
+          <bpmn:incoming>Flow_12na3bd</bpmn:incoming>
+          <bpmn:outgoing>Flow_0oli5b4</bpmn:outgoing>
+          <bpmn:script>def deployedModel = new com.modelop.sdk.dataobjects.v2.model.DeployedModel();
+deployedModel.setDeployableModel(ORIGINAL_MODEL);
+deployedModel.setEngine(JOB.engine);
+MODEL_TEST_RESULT.setDeployedModel(deployedModel);</bpmn:script>
+        </bpmn:scriptTask>
+        <bpmn:sequenceFlow id="Flow_0oli5b4" sourceRef="Activity_03lph20" targetRef="Activity_1eqtzi7" />
       </bpmn:subProcess>
       <bpmn:exclusiveGateway id="Gateway_162lwi6" name="Has Test Data?" default="Flow_0ufntnr">
         <bpmn:incoming>Flow_060xyas</bpmn:incoming>
@@ -149,13 +149,28 @@ MODEL_TEST_RESULT.setDeployedModel(deployedModel);</bpmn:script>
         <bpmn:incoming>Flow_00uyjhz</bpmn:incoming>
         <bpmn:incoming>Flow_07fnueo</bpmn:incoming>
         <bpmn:outgoing>Flow_1jtvy2r</bpmn:outgoing>
-        <bpmn:script>def testData = DRIFT_MODEL.associationAssets.find { it.assetRole.name() == "COMPARATOR_DATA" };
+        <bpmn:script>import com.modelop.sdk.dataobjects.v2.model.*;
+import com.modelop.sdk.dataobjects.v2.assets.*;
 
-execution.setVariable("FILE_ASSET", testData);
+def missingTrainingData = false;
 
-def dmn = DRIFT_MODEL.associationAssets.find { it.assetRole.name() == "TEST_RESULT_COMPARATOR" };
+def trainingData = BASE_MODEL.storedModel.modelAssets.find{it.assetRole == Asset.AssetRole.TRAINING_DATA};
 
-execution.setVariable("TEST_RESULT_COMPARATOR", dmn);</bpmn:script>
+if (DRIFT_MODEL.associatedModel == null || DRIFT_MODEL.associatedModel.storedModel == null || DRIFT_MODEL.associatedModel.storedModel.modelAssets == null) {
+    missingTrainingData = true;
+} else {
+    DRIFT_MODEL.associatedModel.storedModel.modelAssets.add(trainingData);
+}
+
+if (trainingData == null) {
+    missingTrainingData = true;
+}
+
+
+execution.setVariable("DEPLOYABLE_MODEL", DRIFT_MODEL.associatedModel);
+execution.setVariable("OUTPUT_FILE_NAME", "drift_analsyis.json");
+execution.setVariable("INPUT_FILE", FILE_ASSET);
+execution.setVariable("MISSING_TRAINING_DATA", missingTrainingData);</bpmn:script>
       </bpmn:scriptTask>
       <bpmn:exclusiveGateway id="Gateway_0xi9r8e" name="Correct Model Association?" default="Flow_1ru273l">
         <bpmn:incoming>Flow_0znzz4n</bpmn:incoming>
@@ -183,11 +198,11 @@ execution.setVariable("TEST_RESULT_COMPARATOR", dmn);</bpmn:script>
       <bpmn:scriptTask id="Activity_1va9bhp" name="Get Latest Test Data and Compator" scriptFormat="groovy">
         <bpmn:incoming>Flow_1ra1ozr</bpmn:incoming>
         <bpmn:outgoing>Flow_060xyas</bpmn:outgoing>
-        <bpmn:script>def testData = DRIFT_MODEL.associationAssets.find { it.assetRole.name() == "COMPARATOR_DATA" };
+        <bpmn:script>def testData = BASE_MODEL.storedModel.modelAssets.find { it.assetRole.name() == "COMPARATOR_DATA" };
 
 execution.setVariable("FILE_ASSET", testData);
 
-def dmn = DRIFT_MODEL.associationAssets.find { it.assetRole.name() == "TEST_RESULT_COMPARATOR" };
+def dmn = BASE_MODEL.storedModel.modelAssets.find { it.assetRole.name() == "TEST_RESULT_COMPARATOR" };
 
 execution.setVariable("TEST_RESULT_COMPARATOR", dmn);</bpmn:script>
       </bpmn:scriptTask>
@@ -505,18 +520,9 @@ execution.setVariable("BASE_MODELS", deployableModels);</bpmn:script>
     </bpmn:startEvent>
     <bpmn:sequenceFlow id="Flow_14y5mti" sourceRef="Event_1wfp8c8" targetRef="Gateway_1xojqbp" />
     <bpmn:scriptTask id="Activity_0fq3ikm" name="Create Test Job Failed Notification">
-      <bpmn:extensionElements>
-        <camunda:inputOutput>
-          <camunda:inputParameter name="JIRA_PROJECT_KEY">DEMO</camunda:inputParameter>
-          <camunda:inputParameter name="JIRA_ISSUE_TYPE">Bug</camunda:inputParameter>
-          <camunda:inputParameter name="JIRA_EXIT_STATUS" />
-          <camunda:inputParameter name="NOTIFICATION_MESSAGE">Couldn't fetch model with ID : ${DEPLOYABLE_MODEL.id.toString()}</camunda:inputParameter>
-          <camunda:inputParameter name="NOTIFICATION_SEVERITY">ERROR</camunda:inputParameter>
-        </camunda:inputOutput>
-      </bpmn:extensionElements>
       <bpmn:incoming>Flow_0is2ozw</bpmn:incoming>
       <bpmn:outgoing>Flow_13sx84w</bpmn:outgoing>
-      <bpmn:script>println Couldn't fetch model with ID : ${DEPLOYABLE_MODEL.id.toString()}</bpmn:script>
+      <bpmn:script>println Couldn't fetch model with ID : ${MODEL_ID}</bpmn:script>
     </bpmn:scriptTask>
   </bpmn:process>
   <bpmn:error id="Error_1i2lrka" name="FAILURE" errorCode="FAILURE" camunda:errorMessage="Test job did not execute successfully" />

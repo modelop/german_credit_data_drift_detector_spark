@@ -3,27 +3,42 @@
   "jobStatus": "CREATED",
   "inputData": [
     {
-        "assetType": "EXTERNAL_FILE",
-        "assetRole": "COMPARATOR_DATA",
-        "fileUrl": "hdfs:///hadoop/demo/german_credit_model/df_sample_scored.csv",
-        "filename": "df_sample_scored.csv",
-        "fileFormat": "CSV"
+      "assetType": "EXTERNAL_FILE",
+      "assetRole": "COMPARATOR_DATA",
+      "fileUrl": "hdfs:///hadoop/demo/german_credit_model/df_sample_scored.csv",
+      "filename": "df_sample_scored.csv",
+      "fileFormat": "CSV",
+      "repositoryInfo": {
+        "repositoryType": "HDFS_REPOSITORY",
+        "host": "",
+        "port": 0
+      }
     },
     {
-        "assetType": "EXTERNAL_FILE",
-        "assetRole": "TRAINING_DATA",
-        "fileUrl": "hdfs:///hadoop/demo/german_credit_model/df_baseline_scored.csv",
-        "filename": "df_baseline_scored.csv",
-        "fileFormat": "CSV"
+      "assetType": "EXTERNAL_FILE",
+      "assetRole": "TRAINING_DATA",
+      "fileUrl": "hdfs:///hadoop/demo/german_credit_model/df_baseline_scored.csv",
+      "filename": "df_baseline_scored.csv",
+      "fileFormat": "CSV",
+      "repositoryInfo": {
+        "repositoryType": "HDFS_REPOSITORY",
+        "host": "",
+        "port": 0
+      }
     }
   ],
   "outputData": [
     {
-        "assetType": "EXTERNAL_FILE",
-        "assetRole": "UNKNOWN",
-        "fileUrl": "hdfs:///hadoop/demo/german_credit_model/drift_analysis.csv",
-        "filename": "drift_analysis.csv",
-        "fileFormat": "CSV"
+      "assetType": "EXTERNAL_FILE",
+      "assetRole": "UNKNOWN",
+      "fileUrl": "hdfs:///hadoop/demo/german_credit_model/drift_analysis.csv",
+      "filename": "drift_analysis.csv",
+      "fileFormat": "CSV",
+      "repositoryInfo": {
+        "repositoryType": "HDFS_REPOSITORY",
+        "host": "",
+        "port": 0
+      }
     }
   ],
   "model": {
