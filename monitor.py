@@ -51,10 +51,7 @@ def metrics(external_inputs, external_outputs, external_model_assets):
     # Grab the output asset
     if len(external_outputs) != 1:
         raise ValueError("There must be one output asset")
-
-    # Add the filename to the output path
-    output_filename = "drift_detector_output.csv"
-    output_path = list(external_outputs.values())[0]["fileUrl"] + output_filename
+    output_path = list(external_outputs.values())[0]["fileUrl"]
 
     # Pull the HDFS file paths for the assets
     comparator_path = comparator_asset["fileUrl"]

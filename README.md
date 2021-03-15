@@ -1,9 +1,15 @@
 # Spark Drift Monitor Job
 
-TODO: 
+TODO:
+- add rest of files from german_credit_data_drift_detector repo
 - explanation of repo
 - layout of files
 - how to run this example (section is below)
+
+## MLC Discussion
+
+- Output **folder** instead of file?
+- Need test results to show up for main model
 
 ## MLC Trigger
 
