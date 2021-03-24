@@ -11,14 +11,14 @@ from pyspark.sql import SparkSession
 # modelop.init
 def begin():
     print("Begin function...")
-    global spark
-    spark = SparkSession.builder.appName("DriftTest").getOrCreate()
+    global SPARK
+    SPARK = SparkSession.builder.appName("DriftTest").getOrCreate()
 
     # Read schema
-    global schema
-    schema = pd.read_json("df_sample_scored_input_schema.avsc", orient="records")
+    global SCHEMA
+    SCHEMA = pd.read_json("df_sample_scored_input_schema.avsc", orient="records")
     # set schema index to be "name"
-    schema.set_index("name", inplace=True)
+    SCHEMA.set_index("name", inplace=True)
 
 
 # modelop.metrics
@@ -58,8 +58,8 @@ def metrics(external_inputs, external_outputs, external_model_assets):
     baseline_path = baseline_asset["fileUrl"]
 
     # Load the assets as Pandas dataframes
-    baseline_df = spark.read.option("header", "true").csv(baseline_path).toPandas()
-    comparator_df = spark.read.option("header", "true").csv(comparator_path).toPandas()
+    baseline_df = SPARK.read.option("header", "true").csv(baseline_path).toPandas()
+    comparator_df = SPARK.read.option("header", "true").csv(comparator_path).toPandas()
 
     print("Detecting drift...")
     print("Baseline df:")
@@ -68,7 +68,7 @@ def metrics(external_inputs, external_outputs, external_model_assets):
     print(comparator_df)
 
     # Run the monitoring to detect drift
-    detector_parameters = set_detector_parameters(schema)
+    detector_parameters = set_detector_parameters(SCHEMA)
 
     drift_detector = DriftDetector(
         df_baseline=baseline_df,
@@ -96,15 +96,14 @@ def metrics(external_inputs, external_outputs, external_model_assets):
     output_pandas_df = pd.DataFrame.from_dict(output_as_lists)
 
     # Cast to Spark dataframe
-    output_df = spark.createDataFrame(output_pandas_df)
+    output_df = SPARK.createDataFrame(output_pandas_df)
     print("Spark metrics output:")
     output_df.show()
 
     print("Writing output to", output_path)
-    output_df.coalesce(1).write \
-        .mode('overwrite') \
-        .option("header", "true") \
-        .format("csv") \
-        .save(output_path)
+    # Use coalesce() so that the output CSV is a single file for easy reading
+    output_df.coalesce(1).write.mode("overwrite").option("header", "true").format(
+        "csv"
+    ).save(output_path)
 
-    spark.stop()
+    SPARK.stop()

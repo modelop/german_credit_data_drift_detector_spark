@@ -1,10 +1,17 @@
-# Spark Drift Monitor Job
+# German Credit: Spark Data Drift Monitor Example
 
 TODO:
 - add rest of files from german_credit_data_drift_detector repo
 - explanation of repo
 - layout of files
 - how to run this example (section is below)
+
+
+"repositoryInfo": {
+        "repositoryType": "HDFS_REPOSITORY",
+        "host": "",
+        "port": 0
+      }
 
 ## MLC Discussion
 
