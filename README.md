@@ -1,17 +1,22 @@
 # German Credit: Spark Data Drift Monitor Example
 
+- Import https://github.com/merhi-odg/german_credit_python.git
+-
+
+
 TODO:
 - add rest of files from german_credit_data_drift_detector repo
 - explanation of repo
 - layout of files
 - how to run this example (section is below)
 
-
+```json
 "repositoryInfo": {
         "repositoryType": "HDFS_REPOSITORY",
         "host": "",
         "port": 0
       }
+```
 
 ## MLC Discussion
 

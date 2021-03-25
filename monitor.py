@@ -30,14 +30,16 @@ def metrics(external_inputs, external_outputs, external_model_assets):
         a for a in external_inputs.values() if a["assetRole"] == "COMPARATOR_DATA"
     ]
     if len(comparator_assets) != 1:
-        raise ValueError("There must be one comparator data asset")
+        raise ValueError(
+            "There must be one comparator data asset, found 0 in input assets"
+        )
     comparator_asset = comparator_assets[0]
 
     baseline_assets = [
-        a for a in external_inputs.values() if a["assetRole"] == "TRAINING_DATA"
+        a for a in external_model_assets.values() if a["assetRole"] == "TRAINING_DATA"
     ]
     if len(baseline_assets) != 1:
-        raise ValueError("There must be be one baseline asset")
+        raise ValueError("There must be one baseline asset, found 0 in model assets")
     baseline_asset = baseline_assets[0]
 
     # If either asset is a JSON, error out because Spark doesn't like JSON
@@ -50,7 +52,7 @@ def metrics(external_inputs, external_outputs, external_model_assets):
 
     # Grab the output asset
     if len(external_outputs) != 1:
-        raise ValueError("There must be one output asset")
+        raise ValueError("There must be one output asset, found 0")
     output_path = list(external_outputs.values())[0]["fileUrl"]
 
     # Pull the HDFS file paths for the assets
