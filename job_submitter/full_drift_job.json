@@ -31,9 +31,9 @@
     {
       "assetType": "EXTERNAL_FILE",
       "assetRole": "UNKNOWN",
-      "fileUrl": "hdfs:///hadoop/demo/german_credit_model/drift_analysis.csv",
+      "fileUrl": "hdfs:///hadoop/demo/german_credit_model/drift_analysis.json",
       "filename": "drift_analysis.csv",
-      "fileFormat": "CSV",
+      "fileFormat": "JSON",
       "repositoryInfo": {
         "repositoryType": "HDFS_REPOSITORY",
         "host": "",

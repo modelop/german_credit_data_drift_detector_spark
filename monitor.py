@@ -103,9 +103,9 @@ def metrics(external_inputs, external_outputs, external_model_assets):
     output_df.show()
 
     print("Writing output to", output_path)
-    # Use coalesce() so that the output CSV is a single file for easy reading
+    # Use coalesce() so that the output is a single file for easy reading
     output_df.coalesce(1).write.mode("overwrite").option("header", "true").format(
-        "csv"
+        "json"
     ).save(output_path)
 
     SPARK.stop()
