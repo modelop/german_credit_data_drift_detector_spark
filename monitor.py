@@ -1,11 +1,10 @@
+from typing import List
+
 import pandas as pd
-import numpy as np
-import json
-import pickle
+from pyspark.sql import SparkSession
+
 from moc_monitors import DriftDetector
 from moc_schema_infer import set_detector_parameters
-
-from pyspark.sql import SparkSession
 
 
 # modelop.init
@@ -22,42 +21,12 @@ def begin():
 
 
 # modelop.metrics
-def metrics(external_inputs, external_outputs, external_model_assets):
-    print("Parsing assets...")
+def metrics(external_inputs: List, external_outputs: List, external_model_assets: List):
+    print("Metrics function...")
 
-    # Grab input assets from arguments
-    comparator_assets = [
-        a for a in external_inputs.values() if a["assetRole"] == "COMPARATOR_DATA"
-    ]
-    if len(comparator_assets) != 1:
-        raise ValueError(
-            "There must be one comparator data asset, found 0 in input assets"
-        )
-    comparator_asset = comparator_assets[0]
-
-    baseline_assets = [
-        a for a in external_model_assets.values() if a["assetRole"] == "TRAINING_DATA"
-    ]
-    if len(baseline_assets) != 1:
-        raise ValueError("There must be one baseline asset, found 0 in model assets")
-    baseline_asset = baseline_assets[0]
-
-    # If either asset is a JSON, error out because Spark doesn't like JSON
-    if ("fileFormat" in comparator_asset) and (
-        comparator_asset["fileFormat"] == "JSON"
-    ):
-        raise ValueError("Comparator data file format is set as JSON but must be CSV")
-    if ("fileFormat" in baseline_asset) and (baseline_asset["fileFormat"] == "JSON"):
-        raise ValueError("Baseline data file format is set as JSON but must be CSV")
-
-    # Grab the output asset
-    if len(external_outputs) != 1:
-        raise ValueError("There must be one output asset, found 0")
-    output_path = list(external_outputs.values())[0]["fileUrl"]
-
-    # Pull the HDFS file paths for the assets
-    comparator_path = comparator_asset["fileUrl"]
-    baseline_path = baseline_asset["fileUrl"]
+    comparator_path, baseline_path, output_path = parse_assets(
+        external_inputs, external_outputs, external_model_assets
+    )
 
     # Load the assets as Pandas dataframes
     baseline_df = SPARK.read.option("header", "true").csv(baseline_path).toPandas()
@@ -109,3 +78,49 @@ def metrics(external_inputs, external_outputs, external_model_assets):
     ).save(output_path)
 
     SPARK.stop()
+
+
+def parse_assets(
+    external_inputs: List, external_outputs: List, external_model_assets: List
+):
+    """
+    Returns a tuple of (comparator_path, baseline_path, output_path) for paths to HDFS
+    assets
+    """
+    print("Parsing assets...")
+
+    ### Input assets
+    # Grab input assets from arguments
+    comparator_assets = [
+        a for a in external_inputs if a["assetRole"] == "COMPARATOR_DATA"
+    ]
+    if len(comparator_assets) != 1:
+        raise ValueError(
+            "There must be one comparator data asset, found 0 in input assets"
+        )
+    comparator_asset = comparator_assets[0]
+
+    baseline_assets = [a for a in external_inputs if a["assetRole"] == "TRAINING_DATA"]
+    if len(baseline_assets) != 1:
+        raise ValueError("There must be one baseline asset, found 0 in model assets")
+    baseline_asset = baseline_assets[0]
+
+    # If either asset is a JSON, error out because Spark doesn't like JSON
+    if ("fileFormat" in comparator_asset) and (
+        comparator_asset["fileFormat"] == "JSON"
+    ):
+        raise ValueError("Comparator data file format is set as JSON but must be CSV")
+    if ("fileFormat" in baseline_asset) and (baseline_asset["fileFormat"] == "JSON"):
+        raise ValueError("Baseline data file format is set as JSON but must be CSV")
+
+    # Pull the HDFS file paths for the assets
+    comparator_path = comparator_asset["fileUrl"]
+    baseline_path = baseline_asset["fileUrl"]
+
+    ### Output asset
+    # Grab the output asset
+    if len(external_outputs) != 1:
+        raise ValueError("There must be one output asset, found 0")
+    output_path = external_outputs[0]["fileUrl"]
+
+    return (comparator_path, baseline_path, output_path)

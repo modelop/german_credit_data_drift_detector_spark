@@ -5,10 +5,9 @@ import urllib
 import requests
 
 
-# BASE_URL = "http://internal-a2297ab0-wttest-gatewaying-d216-1674145052.us-east-2.elb.amazonaws.com/"
 BASE_URL = "http://mocaasin.modelop.center"
 MODEL_FILENAME = "monitor.py"
-JOB_FILENAME = "job_submitter/full_drift_job.json"
+JOB_FILENAME = "job_submitter/german_credit_data_drift_job.json"
 
 ###
 
