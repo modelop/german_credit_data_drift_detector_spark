@@ -27,6 +27,7 @@ Below are the assets that are used to run this example:
 7. Create a snapshot of the base model
    - (Optional) Select the ModelOp Runtime as the runtime type for the base model
    - Add the snapshot of the associated model (this repo) as an associated model
+   - Set the associated model type to "Data Drift Model"
    - Add the comparator data as an associated asset HDFS URL
        - URL: `hdfs:///hadoop/demo/german_credit_model/df_sample_scored.csv`
    - (Optional) Provide a DMN file for the MLC to parse with the test results
