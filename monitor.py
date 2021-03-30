@@ -96,13 +96,19 @@ def parse_assets(
     ]
     if len(comparator_assets) != 1:
         raise ValueError(
-            "There must be one comparator data asset, found 0 in input assets"
+            "There must be one item in input assets with COMPARATOR_DATA role, found {}".format(
+                len(comparator_assets)
+            )
         )
     comparator_asset = comparator_assets[0]
 
     baseline_assets = [a for a in external_inputs if a["assetRole"] == "TRAINING_DATA"]
     if len(baseline_assets) != 1:
-        raise ValueError("There must be one baseline asset, found 0 in model assets")
+        raise ValueError(
+            "There must be one item in input assets with TRAINING_DATA role, found {}".format(
+                len(baseline_assets)
+            )
+        )
     baseline_asset = baseline_assets[0]
 
     # If either asset is a JSON, error out because Spark doesn't like JSON
